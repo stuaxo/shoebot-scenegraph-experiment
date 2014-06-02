@@ -1,0 +1,6 @@
+Seperate driver state and (graphics?) state.
+
+
+DriverState
+    currentNode <-- current place in scenegraph
+    driver specific stuff (cairo context or whatever ?)

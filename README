@@ -1,0 +1,32 @@
+Scenegraph
+
+
+Traverse the graph
+
+
+subnodes have enter/leave
+
+
+
+
+renderer ...
+
+iterate through nodes. ..  
+
+
+Call methods with the same name in the renderers.
+
+
+
+
+
+
+
+
+
+EXAMPLE
+
+
+fill(1, 0, 0)  <- sets drawing state
+rect(40, 40)   <- add path element
+
