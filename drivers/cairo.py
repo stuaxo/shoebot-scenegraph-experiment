@@ -109,10 +109,6 @@ class Canvas(TraverserMixin):
             def moveto(self, traverser, x, y):
                 traverser.ctx.move_to(x, y)
 
-        def render(self, traverser, element, *args, **kwargs):
-            #print ' ' * 4 * kwargs.get('level') + 'render cairo path'
-            pass
-
         def leave(self, traverser, element, *args, **kwargs):
             """
             BUG - This is just wrong, shouldn't be setting color here
