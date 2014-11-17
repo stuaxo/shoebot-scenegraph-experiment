@@ -11,28 +11,44 @@ Change to having some sort of graphics context with the current state
 instead of recreating the scenegraph on this side with the objects.
 """
 
+
 class CmdMxin(object):
     def __init__(self, cmd, *args):
-        self.args = args
+        """
+        Render using a method with the same name as cmd
+        """
         self.cmd = cmd
     
-    def rendergraph(self, element):
+    def rendergraph(self, traverser, scenegraph, element):
         print 'cmd rendergraph', self.__class__
         pass
 
-    def render(self, element, *args, **kwargs):
-        m = getattr(self, element.cmd)
-        m(*element.args)
+    def enter(self, traverser, element, *args, **kwargs):
+        pass
 
-class SceneGraphMixin(object):
+    def render(self, traverser, element, *args, **kwargs):
+        m = getattr(self, element.cmd)
+        m(traverser, *element.args)
+
+    def leave(self, traverser, element, *args, **kwargs):
+        pass
+
+
+class TraverserMixin(object):
     def __init__(self, *args):
         self.args = args
 
     def render(self):
         pass
 
-    def rendergraph(self, scenegraph, level=0, *args, **kwargs):
-        print ' ' * level * 4 +  'rendergraph ', self.__class__
+    def enter(self, *args, **kwargs):
+        pass
+
+    def leave(self, *args, **kwargs):
+        pass
+
+    def rendergraph(self, traverser, scenegraph, level=0, *args, **kwargs):
+        #print ' ' * level * 4 +  'rendergraph ', self.__class__
         klass = self.__class__
         for element in scenegraph.elements:
             #print ' ' * level * 4, element, element.elements
@@ -40,46 +56,78 @@ class SceneGraphMixin(object):
             inst = subklass(*element.args)
 
             if element.elements is not None:
-                inst.rendergraph(element, level+1, *args, **kwargs)
+                inst.enter(traverser, element, level=level+1, *args, **kwargs)
+                inst.rendergraph(traverser, element, level=level+1, *args, **kwargs)
+                inst.leave(traverser, element, level=level+1, *args, **kwargs)
             else:
-                inst.render(element, level=level+1, *args, **kwargs)
+                inst.enter(traverser, element, level=level+1, *args, **kwargs)
+                inst.render(traverser, element, level=level+1, *args, **kwargs)
+                inst.leave(traverser, element, level=level+1, *args, **kwargs)
 
 
-class Canvas(SceneGraphMixin):    
-    def __init__(self, *args, **kwargs):
-        self.surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 400, 400)
+class Canvas(TraverserMixin):
+    def __init__(self, ctx):
+        """
+        :param ctx: Cairo context
+        """
+        self.ctx = ctx
 
-    def rendergraph(self, *args, **kwargs):
+        self.fill_color = None
+        self.stroke_color = None
+
+    def rendergraph(self, traverser, *args, **kwargs):
         """
         """
+        if traverser is None:
+            traverser = self
+
         if 'ctx' not in kwargs:
             kwargs['ctx'] = cairo.Context(self.surface)
-        
-        super(Canvas, self).rendergraph(*args, **kwargs)
 
-    class Color(SceneGraphMixin):
-        def render(self, element, *args, **kwargs):
+        super(Canvas, self).rendergraph(traverser, *args, **kwargs)
+
+    class Color(TraverserMixin):
+        def render(self, traverser, element, *args, **kwargs):
+            #print ' ' * 4 * kwargs.get('level') + ' cairo %s: %s ' % (element.cmd, element.args)
+            #print 'set_source_rgb ', element.args
+
             if element.cmd == 'fill':
-                pass
-            elif element.cmd == 'stroke':
-                pass
-            print ' ' * 4 * kwargs.get('level') + 'render %s cairo color' % element.cmd
+                traverser.fill_color = element.args
+            elif element.cmd == 'fill':
+                traverser.stroke_color = element.args
 
-    class Path(SceneGraphMixin):
+            if len(args) == 3:
+                traverser.ctx.set_source_rgb(*element.args)
+            elif len(args) == 4:
+                traverser.ctx.set_source_rgb(*element.args)
+
+    class Path(TraverserMixin):
         class PathElement(CmdMxin):
-            def lineto(self, x, y):
-                print 'lineto:', x, y
-                pass
+            def lineto(self, traverser, x, y):
+                traverser.ctx.line_to(x, y)
 
-            def moveto(self, x, y):
-                print 'moveto:', x, y
-                pass
+            def moveto(self, traverser, x, y):
+                traverser.ctx.move_to(x, y)
+
+        def render(self, traverser, element, *args, **kwargs):
+            #print ' ' * 4 * kwargs.get('level') + 'render cairo path'
+            pass
+
+        def leave(self, traverser, element, *args, **kwargs):
+            """
+            BUG - This is just wrong, shouldn't be setting color here
+            """
+            #print ' ' * 4 * kwargs.get('level') + 'leave cairo path'
+
+            if traverser.fill_color is not None:
+                traverser.ctx.set_source_rgba(*traverser.fill_color)
+                traverser.ctx.fill()
+            elif traverser.stroke_color is not None:
+                traverser.ctx.set_source_rgba(*traverser.stroke_color)
+                traverser.ctx.stroke()
 
 
-        def render(self, element, *args, **kwargs):
-            print  ' ' * 4 * kwargs.get('level') + 'render cairo path'
-
-def render(scenegraph, level=0):
-    canvas = Canvas()
-    canvas.rendergraph(scenegraph, level=0)
+def render(scenegraph, ctx):
+    canvas = Canvas(ctx)
+    canvas.rendergraph(None, scenegraph, level=0, ctx=ctx)
 

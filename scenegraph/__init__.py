@@ -7,13 +7,18 @@ moveto x, y
 lineto x, y
 """
 
-def traverse(scenegraph, level=0):
+
+def debug(scenegraph, level=0):
+    """
+    Traverse scenegraph and print each node
+    """
     for element in scenegraph.elements:
         if element.elements is not None:
             print ' ' * (level * 4), element
-            traverse(element, level + 1)
+            debug(element, level + 1)
         else:
             print ' ' * (level * 4), element
+
 
 class SceneGraph(object):
     def __init__(self):
@@ -22,6 +27,7 @@ class SceneGraph(object):
     def add(self, element):
         self.elements.append(element)
         return element
+
 
 class PathElement(object):
     elements = None
@@ -33,6 +39,7 @@ class PathElement(object):
     def __repr__(self):
         return '<PathElement {} {}>'.format(self.cmd, self.args)
         
+
 class Color(object):
     elements = None
     
@@ -41,17 +48,17 @@ class Color(object):
         :param cmd: foreground | background
         """
         self.cmd = cmd
+        col = args[0]
 
-        # Convert type into 
-        t = type(args)
-        if t == tuple and len(args) in [3, 4]:
+        if isinstance(args[0], basestring):
+            self.args = colour.hex2rgb(colour.web2hex(col))
+        elif len(args) in [3, 4]:
             self.args = args
-        elif t in [str, unicode]:
-            self.args = colour.hex2rgb(colour.web2hex(args))
-        
+
     def __repr__(self):
         return '<Color {} {}>'.format(self.cmd, self.args)
-    
+
+
 class Path(object):
     def __init__(self):
         self.elements = []
@@ -65,12 +72,17 @@ class Path(object):
     
     def __repr__(self):
         return '<Path>'
-    
+
+
 class Canvas(object):
     def __init__(self):
         self.scenegraph = SceneGraph()
         self.elements = [self.scenegraph]
-        
+
+        ## These should really be stored in the graph somewhere
+        self.fill_color = None
+        self.stroke_color = None
+
     def fill(self, *args):
         c = args
         return self.scenegraph.add(Color("fill", *c))
