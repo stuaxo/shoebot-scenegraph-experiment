@@ -1,4 +1,7 @@
-import cairocffi as cairo
+try:
+    import cairocffi as cairo
+except:
+    import cairo
 
 """
 TODO
