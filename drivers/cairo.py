@@ -11,7 +11,6 @@ Change to having some sort of graphics context with the current state
 instead of recreating the scenegraph on this side with the objects.
 """
 
-
 class CmdMxin(object):
     def __init__(self, cmd, *args):
         """
@@ -52,8 +51,8 @@ class TraverserMixin(object):
         klass = self.__class__
         for element in scenegraph.elements:
             #print ' ' * level * 4, element, element.elements
-            subklass = getattr(klass, element.__class__.__name__)
-            inst = subklass(*element.args)
+            childklass = getattr(klass, element.__class__.__name__)
+            inst = childklass(*element.args)
 
             if element.elements is not None:
                 inst.enter(traverser, element, level=level+1, *args, **kwargs)
@@ -108,6 +107,9 @@ class Canvas(TraverserMixin):
 
             def moveto(self, traverser, x, y):
                 traverser.ctx.move_to(x, y)
+
+            def rect(self, traverser, width, height):
+                traverser.ctx.rectangle(0, 0, width, height)
 
         def leave(self, traverser, element, *args, **kwargs):
             """

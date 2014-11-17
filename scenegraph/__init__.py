@@ -69,6 +69,9 @@ class Path(object):
 
     def moveto(self, x, y):
         return self.elements.append(PathElement("moveto", x, y))
+
+    def rect(self, width, height):
+        return self.elements.append(PathElement("rect", width, height))
     
     def __repr__(self):
         return '<Path>'
