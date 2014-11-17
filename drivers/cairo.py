@@ -44,13 +44,26 @@ class SceneGraphMixin(object):
             else:
                 inst.render(element, level=level+1, *args, **kwargs)
 
-class Canvas(SceneGraphMixin):
+import colour
+class Canvas(SceneGraphMixin):    
     def __init__(self, *args, **kwargs):
         self.surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 400, 400)
 
+    def rendergraph(self, *args, **kwargs):
+        """
+        """
+        if 'ctx' not in kwargs:
+            kwargs['ctx'] = cairo.Context(self.surface)
+        
+        super(Canvas, self).rendergraph(*args, **kwargs)
+
     class Color(SceneGraphMixin):
         def render(self, element, *args, **kwargs):
-            print ' ' * 4 * kwargs.get('level') + 'render cairo color'
+            if element.cmd == 'fill':
+                pass
+            elif element.cmd == 'stroke':
+                pass
+            print ' ' * 4 * kwargs.get('level') + 'render %s cairo color' % element.cmd
 
     class Path(SceneGraphMixin):
         class PathElement(CmdMxin):

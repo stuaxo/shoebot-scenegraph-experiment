@@ -1,3 +1,5 @@
+import colour
+
 """
 path elements
 
@@ -39,7 +41,13 @@ class Color(object):
         :param cmd: foreground | background
         """
         self.cmd = cmd
-        self.args = args
+
+        # Convert type into 
+        t = type(args)
+        if t == tuple and len(args) in [3, 4]:
+            self.args = args
+        elif t in [str, unicode]:
+            self.args = colour.hex2rgb(colour.web2hex(args))
         
     def __repr__(self):
         return '<Color {} {}>'.format(self.cmd, self.args)
