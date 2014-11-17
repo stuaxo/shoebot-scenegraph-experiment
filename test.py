@@ -19,7 +19,7 @@ if __name__=="__main__":
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 200, 200)
     ctx = cairo.Context(surface)
     drivers.cairo.render(c.scenegraph, ctx)
-    
+
     surface.write_to_png("output.png")
 
     # Display the graph we just rendered

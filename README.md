@@ -22,11 +22,11 @@ if __name__=="__main__":
     p.lineto(0, 100)
     p.lineto(0, 0)
 
+    # Render to a cairo surface
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 200, 200)
     ctx = cairo.Context(surface)
-
     drivers.cairo.render(c.scenegraph, ctx)
-
+    
     surface.write_to_png("output.png")
 
     # Display the graph we just rendered

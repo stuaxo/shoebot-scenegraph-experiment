@@ -11,6 +11,7 @@ Change to having some sort of graphics context with the current state
 instead of recreating the scenegraph on this side with the objects.
 """
 
+
 class CmdMxin(object):
     def __init__(self, cmd, *args):
         """
