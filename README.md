@@ -75,6 +75,17 @@ class Canvas(TraverserMixin):
 
 ```
 
+Commands
+--------
 
+In the code above some PathElement is a CmdMixin - this allows functions to be
+used.
+
+
+
+TODO
+====
+
+State passed around needs to be much more simple.
 
 
