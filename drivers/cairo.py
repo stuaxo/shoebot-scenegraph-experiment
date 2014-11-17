@@ -44,7 +44,7 @@ class SceneGraphMixin(object):
             else:
                 inst.render(element, level=level+1, *args, **kwargs)
 
-import colour
+
 class Canvas(SceneGraphMixin):    
     def __init__(self, *args, **kwargs):
         self.surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 400, 400)
