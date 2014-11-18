@@ -51,7 +51,7 @@ class Color(object):
         col = args[0]
 
         if isinstance(args[0], basestring):
-            self.args = colour.hex2rgb(colour.web2hex(col))
+            self.args = colour.web2rgb(col)
         elif len(args) in [3, 4]:
             self.args = args
 
